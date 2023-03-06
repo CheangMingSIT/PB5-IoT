@@ -84,7 +84,7 @@ async def bluetooth_onReceiveHandler(sender, data):
 	#Append incoming string to logs
 	try:
 		with open(PATH_LOGSFILE, 'a') as writer:
-			writer.write(str(sender) + ":" + str(incomingText))
+			writer.write(str(sender) + ":" + str(incomingText) + "\n")
 	except Exception:
 		#Return internal error exception
 		printWithTS("bluetooth_onReceiveHandler: *ERROR* Unable to append to logs.")
