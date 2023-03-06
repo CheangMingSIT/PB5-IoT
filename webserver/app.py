@@ -5,8 +5,9 @@ import asyncio
 from bleak import BleakClient
 
 #Config variable(s)
-PATH_RUNTIMEROOT = os.getcwd()
-PATH_LOGSFILE = PATH_RUNTIMEROOT + "\\logs\\logs.txt"
+#PATH_RUNTIMEROOT = os.getcwd()
+#PATH_LOGSFILE = PATH_RUNTIMEROOT + "\\logs\\logs.txt"
+PATH_LOGSFILE = ".\\logs\\logs.txt"
 SERVER_HOSTREACT = True
 
 BLE_CHARACTERISICSID = "5865b90d-ea62-4b39-b6a5-de1f949c78c6"
@@ -41,6 +42,8 @@ def serve(path):
 def api_fetchLogs():
 	if request.method == "GET":
 		data = []
+		printWithTS("Logs File Path: " + str(PATH_LOGSFILE))
+	
 		try:
 			with open(PATH_LOGSFILE, 'r') as file:
 				textLines = file.readlines()
