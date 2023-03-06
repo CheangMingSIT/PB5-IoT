@@ -76,6 +76,8 @@ async def bluetooth_listener():
 		
 #Bluetooth OnReceive Handler
 async def bluetooth_onReceiveHandler(sender, data):
+	printWithTS("bluetooth_onReceiveHandler: Incoming message...")
+
 	#Decode incoming bytes to string
 	incomingText = data.decode("utf-8")
 
