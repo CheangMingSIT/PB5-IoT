@@ -1,12 +1,8 @@
-import json
 import os, sys, datetime
-from flask import Flask, request, jsonify, Response, send_from_directory, send_file, make_response
+from flask import Flask, request, jsonify, Response, send_from_directory
 from flask_cors import CORS
-from backend import encoderDecoder as ed
 import asyncio
-from bleak import BleakScanner, BleakClient
-from bleak.exc import BleakError
-
+from bleak import BleakClient
 
 #Config variable(s)
 PATH_RUNTIMEROOT = os.getcwd()
