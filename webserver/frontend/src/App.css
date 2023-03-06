@@ -1,0 +1,30 @@
+nav {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+}
+
+.sidebar {
+    min-height: 100vh;
+    max-height: 100vh;
+    overflow-y: auto;
+    box-shadow: inset -1px 0 0 rgba(0, 0, 0, .1);
+}
+
+#sidebarWrapper {
+    position: relative;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    min-height: 100vh;
+    min-width: 15vw;
+    max-width: 15vw;
+    padding: 0;
+    z-index: 100;
+}
+
+@media (max-width: 800px) {
+    #sidebarWrapper {
+        display: none;
+    }
+}
