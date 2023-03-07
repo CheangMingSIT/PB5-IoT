@@ -3,7 +3,7 @@ from flask import Flask, request, jsonify, Response, send_from_directory
 from flask_cors import CORS
 
 #Config variable(s)
-PATH_LOGSFILE = "./logs/logs.txt"
+PATH_LOGSFILE = "../logs/logs.txt"
 SERVER_HOSTREACT = True
 
 sys.path.append(sys.path[0] + "/..")

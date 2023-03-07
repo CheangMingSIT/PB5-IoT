@@ -3,6 +3,7 @@ from bleak import BleakClient
 import asyncio
 
 #Config variable(s)
+PATH_LOGSFILE = "../logs/logs.txt"
 BLE_CHARACTERISICSID = "5865b90d-ea62-4b39-b6a5-de1f949c78c6"
 BLE_CLIENTADDRESS = "E8:9F:6D:0A:34:C2"
 
@@ -37,9 +38,8 @@ async def bluetooth_onReceiveHandler(sender, data):
 		with open(PATH_LOGSFILE, 'a') as writer:
 			writer.write(str(sender) + ":" + str(incomingText) + "\n")
 	except Exception:
-		#Return internal error exception
 		printWithTS("bluetooth_onReceiveHandler: *ERROR* Unable to append to logs.")
-		return Response(status = 500)
+		return
 
 #Main
 if __name__ == "__main__":
