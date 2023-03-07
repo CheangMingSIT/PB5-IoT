@@ -1,11 +1,11 @@
-import os, sys, datetime
+import datetime
 from bleak import BleakClient
 import asyncio
 
 #Config variable(s)
 PATH_LOGSFILE = "../logs/logs.txt"
 BLE_CHARACTERISICSID = "5865b90d-ea62-4b39-b6a5-de1f949c78c6"
-BLE_CLIENTADDRESS = "E8:9F:6D:0A:34:C2"
+BLE_CLIENTADDRESS = "AC:0B:FB:6F:9B:EA"
 
 
 #Helper Functions(s)
