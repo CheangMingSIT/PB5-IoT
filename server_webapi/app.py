@@ -1,15 +1,10 @@
 import os, sys, datetime
 from flask import Flask, request, jsonify, Response, send_from_directory
 from flask_cors import CORS
-import asyncio
-from bleak import BleakClient
 
 #Config variable(s)
 PATH_LOGSFILE = "./logs/logs.txt"
 SERVER_HOSTREACT = True
-
-BLE_CHARACTERISICSID = "5865b90d-ea62-4b39-b6a5-de1f949c78c6"
-BLE_CLIENTADDRESS = "E8:9F:6D:0A:34:C2"
 
 sys.path.append(sys.path[0] + "/..")
 app = Flask(__name__, static_folder = "frontend/build")
@@ -62,35 +57,6 @@ def api_fetchLogs():
 	return Response(status = 400)
 
 
-#Bluetooth Listener
-async def bluetooth_listener():
-	async with BleakClient(BLE_CLIENTADDRESS) as client:
-		#Subscribe to notifications for the characteristic
-		await client.start_notify(
-			BLE_CHARACTERISICSID,
-			bluetooth_onReceiveHandler)
-
-		#Wait for notifications
-		while True:
-			await asyncio.sleep(0.1)
-		
-#Bluetooth OnReceive Handler
-async def bluetooth_onReceiveHandler(sender, data):
-	printWithTS("bluetooth_onReceiveHandler: Incoming message...")
-
-	#Decode incoming bytes to string
-	incomingText = data.decode("utf-8")
-
-	#Append incoming string to logs
-	try:
-		with open(PATH_LOGSFILE, 'a') as writer:
-			writer.write(str(sender) + ":" + str(incomingText) + "\n")
-	except Exception:
-		#Return internal error exception
-		printWithTS("bluetooth_onReceiveHandler: *ERROR* Unable to append to logs.")
-		return Response(status = 500)
-
-
 #Main
 if __name__ == "__main__":
 	#Start web server
@@ -100,6 +66,3 @@ if __name__ == "__main__":
 		threaded = True
 	)
 
-	#Start bluetooth listener
-	loop = asyncio.get_event_loop()
-	loop.run_until_complete(bluetooth_listener())

@@ -1,3 +1,3 @@
 # PB5-IoT
 
-![my_img](images/configuration.jpg)
+![my_img](documentation/images/configuration.jpg)
