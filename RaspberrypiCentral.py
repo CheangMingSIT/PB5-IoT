@@ -1,9 +1,20 @@
 from bluepy.btle import UUID, Peripheral, DefaultDelegate, ADDR_TYPE_PUBLIC
+import paho.mqtt.client as mqtt
+
+# MQTT broker detials
+broker_address = "localhost"
+broker_port = 1883
+client_id = "CMBle"
+
 # BLE Characteristics
-char_uuid = "5865b90d-ea62-4b39-b6a5-de1f949c78c6"
+char_uuid = "4d704edb-d948-42ae-b49f-f8ebe8789552"
 
 # Address of the peripheral device. Address will be found during scan
-addresses = ["E8:9F:6D:0A:34:C2", "AC:0B:FB:6F:9E:CE"]
+addresses = ["AC:0B:FB:6F:9E:CE", "E8:9F:6D:0A:34:C2"]
+decoded_value = ""
+
+mqtt_client = mqtt.Client(client_id=client_id)
+mqtt_client.connect(broker_address, broker_port)
 
 
 class NotificationHandler(DefaultDelegate):
@@ -13,7 +24,8 @@ class NotificationHandler(DefaultDelegate):
     def handleNotification(self, handle, data):
         # decode the value from bytes to string
         decoded_value = data.decode("utf-8")
-        print("Received value:", decoded_value)
+        print("\nReceived value:", decoded_value)
+        mqtt_client.publish("test", decoded_value)
 
 
 try:
@@ -37,7 +49,7 @@ try:
      # wait for notifications
     while True:
         for device in devices:
-            if device.waitForNotifications(10.0):
+            if device.waitForNotifications(1.0):
                 continue
 
 finally:
