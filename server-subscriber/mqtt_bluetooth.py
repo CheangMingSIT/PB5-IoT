@@ -26,7 +26,6 @@ def on_message(client, userdata, message):
 
 	operationType = int(content.split("#")[2])
 
-
 	latencyToPublisher = 0
 	sentTimestamp = None
 
@@ -34,9 +33,12 @@ def on_message(client, userdata, message):
 		latencyToPublisher = int(content.split("#")[3])
 		sentTimestamp = recievedTimestamp - datetime.timedelta(milliseconds=latencyToPublisher)
 
-	# elif operationType == 2:
-	# 	milliseconds = int(content.split("#")[3])
-	# 	sentTimestamp = datetime.fromtimestamp(milliseconds / 1000.0)
+	elif operationType == 2:
+		milliseconds = int(content.split("#")[3])
+		sentTimestamp = datetime.fromtimestamp(milliseconds / 1000.0)
+
+	else:
+		sentTimestamp = recievedTimestamp
 
 	printWithTS("Received message: " + str(content))
 
