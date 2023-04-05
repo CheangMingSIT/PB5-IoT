@@ -420,3 +420,6 @@ __pycache__/
 
 # Built Visual Studio Code Extensions
 *.vsix
+m5Wifi/m5Wifi/esp32.svd
+m5Wifi/m5Wifi/debug.cfg
+m5Wifi/m5Wifi/debug_custom.json
