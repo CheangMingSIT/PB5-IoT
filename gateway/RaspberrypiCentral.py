@@ -1,10 +1,11 @@
 from bluepy.btle import UUID, Peripheral, DefaultDelegate, ADDR_TYPE_PUBLIC
 import paho.mqtt.client as mqtt
 
-# MQTT broker detials
+# Define MQTT broker details
 broker_address = "localhost"
 broker_port = 1883
 client_id = "CMBle"
+topic = "maintopic"
 
 # BLE Characteristics
 char_uuid = "4d704edb-d948-42ae-b49f-f8ebe8789552"
@@ -25,7 +26,7 @@ class NotificationHandler(DefaultDelegate):
         # decode the value from bytes to string
         decoded_value = data.decode("utf-8")
         print("\nReceived value:", decoded_value)
-        mqtt_client.publish("test", decoded_value)
+        mqtt_client.publish(topic, decoded_value)
 
 
 try:

@@ -5,7 +5,7 @@ from flask import Flask, request, jsonify, Response, send_from_directory
 from flask_cors import CORS
 
 #Config Variable(s)
-PATH_DB = "../logs.sqlite"
+PATH_DB = "../database/logs.sqlite"
 SERVER_HOSTREACT = True
 SERVER_PORT = 8080
 DB_TABLE = "Logs"
@@ -106,7 +106,7 @@ def api_startQuestion():
 						log_action,
 						log_message
 					) VALUES (
-						'Server',
+						'[SERVER]',
 						'""" + str(datetime.datetime.now()) + """',
 						'""" + str(RUNTIME_UUID) + """',
 						'""" + str(inputSid) + """',
@@ -167,7 +167,7 @@ def api_endQuestion():
 						log_action,
 						log_message
 					) VALUES (
-						'Server',
+						'[SERVER]',
 						'""" + str(datetime.datetime.now()) + """',
 						'""" + str(RUNTIME_UUID) + """',
 						'""" + str(inputSid) + """',
