@@ -82,9 +82,9 @@ void loop()
           pressedTime = millis();
           duration = pressedTime - receivedTime;
           Serial.print("Duration before pressing "+String(duration)+"\n");
-          String answer = ("Button 26 pressed User 2 with a duration of "+ String(duration));
+          String answer = ("Button 26 pressed User 1 with a duration of "+ String(duration));
             
-          client.publish(topic, answer.c_str());
+          client.publish(topic, answer.c_str(),true);
           M5.Lcd.printf("Button 26", 0);
 
         }
@@ -99,9 +99,9 @@ void loop()
         pressedTime = millis();
         duration = pressedTime - receivedTime;
         Serial.print("Duration before pressing "+String(duration)+"\n");        
-        String answer = ("Button 36 pressed User 2 with a duration of " + String(duration));
+        String answer = ("Button 36 pressed User 1 with a duration of " + String(duration));
         
-        client.publish(topic, answer.c_str());
+        client.publish(topic, answer.c_str(),true);
         M5.Lcd.printf("Button 36", 0);
       }
     } 
@@ -115,10 +115,9 @@ void loop()
         pressedTime = millis();
         duration = pressedTime - receivedTime;
         Serial.print("Duration before pressing "+String(duration)="\n");  
+        String answer = ("Button 0 pressed User 1 with a duration of " + String(duration));
 
-        String answer = ("Button 0 pressed User 2 with a duration of " + String(duration));
-
-        client.publish(topic, answer.c_str());
+        client.publish(topic, answer.c_str(), true);
         M5.Lcd.printf("Button 0", 0);
       }
     }
@@ -164,7 +163,12 @@ void callback(char* topic, byte* payload, unsigned int length)
     Serial.println("Question has started");
     questionStarted = true;
     receivedTime = millis();
-    // Serial.println(receivedTime);
+  }
+
+  if (strstr(message.c_str(), "Times up"))
+  {
+    Serial.println("Question has run out of time");
+    questionStarted = false;
   }
 }
 
@@ -178,7 +182,7 @@ void connect()
     {
       Serial.println("Connected to MQTT broker");
       client.publish(topic,"M5 stick connected, testing publish");
-      client.subscribe(topic);
+      client.subscribe(topic,1);
     } else {
       Serial.print("Failed with state ");
       Serial.print(client.state());
