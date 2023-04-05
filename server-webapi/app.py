@@ -95,7 +95,7 @@ def api_startQuestion():
 			#Create database connection
 			dbConn = sqlite3.connect(PATH_DB)
 			dbCursor = dbConn.cursor()
-			
+
 			try:
 
 				query = """INSERT INTO """ + DB_TABLE + """ 
@@ -203,18 +203,19 @@ def api_endQuestion():
 	else:
 		#Invalid request type
 		return Response(status = 400)
-@app.route("/api/questionResults", methods = ["POST"])
+@app.route("/api/questionResults", methods = ["GET"])
 def api_questionResults():
-	if request.method == "POST":
+	if request.method == "GET":
 		try:
 			returnData = []
 
 			#Retrieve args
-			sid = request.form["sid"]
-			minutes_time = int(request.form["minutes"])
-			seconds_time = int(request.form["seconds"])
-			score = int(request.form["score"])
-			answer = int(request.form["answer"])
+			args = request.args
+			sid = args.get("sid")
+			minutes_time = int(args.get("minutes"))
+			seconds_time = int(args.get("seconds"))
+			score = int(args.get("score"))
+			answer = int(args.get("answer"))
 
 			#Calculate right answer score
 			answer_score = round(score / 2)
@@ -321,7 +322,7 @@ def api_questionResults():
 				#Return internal error exception
 				printWithTS("/api/questionResults: *ERROR* 02: Unexpected exception in database.")
 				return Response(status = 500)
-			
+						
 			#Close database connections
 			dbCursor.close()
 			dbConn.close()
@@ -407,7 +408,7 @@ def api_client():
 				'""" + str(None) + """',
 				2,
 				0,
-				""" + str(input) + """: Button """ + str(input) + """ pressed'
+				'""" + str(input) + """: Button """ + str(input) + """ pressed'
 			);"""
 
 		dbCursor.execute(query)
@@ -415,7 +416,8 @@ def api_client():
 
 		return jsonify(status = 200)
 	
-	except Exception:
+	except Exception as e:
+		printWithTS(e)
 		return Response(status = 500)
 	
 	finally:

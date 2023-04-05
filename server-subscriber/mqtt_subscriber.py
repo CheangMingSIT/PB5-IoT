@@ -1,5 +1,6 @@
 import paho.mqtt.client as mqtt
 import os, sys, datetime, sqlite3, uuid, math, time
+from datetime import datetime as dt
 
 #Config Variable(s)
 PATH_DB = "../database/logs.sqlite"
@@ -7,9 +8,9 @@ DB_TABLE = "Logs"
 DB_DATETIMEFORMAT = "%Y-%m-%d %H:%M:%S.%f"
 
 # Define MQTT broker details
-broker_address = "mqtt.example.com"
+broker_address = "192.168.182.14"
 port = 1883
-topic = "maintopic"
+topic = "test"
 
 #Helper Functions(s)
 def printWithTS(inputStr):
@@ -18,12 +19,15 @@ def printWithTS(inputStr):
 
 # Define function to handle incoming messages
 def on_message(client, userdata, message):
-	latencyToPublisher = client.ping()
+	#latencyToPublisher = client.ping()
+	latencyToPublisher = 10
 
 	recievedTimestamp = datetime.datetime.now()
 	sentTimestamp = recievedTimestamp - datetime.timedelta(microseconds=latencyToPublisher)
 
-	content = str(message.payload.decode("utf-8"))
+	content = str(message.payload.decode("utf-8")).rstrip('\x00')
+
+	printWithTS("Received message: " + str(content))
 
 	#Try connecting to DB
 	tryDbConnection = True
@@ -31,7 +35,7 @@ def on_message(client, userdata, message):
 		tryDbConnection = False
 
 		clientId = content.split("#")[0]
-		action = content.split("#")[1]
+		action = str(content.split("#")[1]) + ": Button " + str(content.split("#")[1]) + " pressed"
 
 		#Create database connection
 		dbConn = sqlite3.connect(PATH_DB)
@@ -57,11 +61,15 @@ def on_message(client, userdata, message):
 					'""" + str(action) + """'
 				);"""
 			
+			query.rstrip('\x00')
 			dbCursor.execute(query)
 			dbConn.commit()
-		
+			printWithTS("Action committed to database.")
+
 		#Caught DB opertional error
 		except sqlite3.OperationalError as e:
+			printWithTS("Database busy. Waiting...")
+
 			#Retry DB connection
 			tryDbConnection = True
 			time.sleep(0.01)
@@ -82,8 +90,10 @@ client = mqtt.Client()
 client.on_message = on_message
 
 # Connect to MQTT broker and subscribe to topic
+printWithTS("Starting listener...")
 client.connect(broker_address, port=port)
 client.subscribe(topic)
+printWithTS("Listener started.")
 
 # Start the MQTT client loop to listen for incoming messages
 client.loop_forever()

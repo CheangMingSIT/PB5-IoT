@@ -36,7 +36,7 @@ export var quizData = [
 				],
 				score: 1000,
 				timeMinutes: 0,
-				timeSeconds: 3,
+				timeSeconds: 15,
 				correctAns: 1
 			},
 			{
@@ -50,8 +50,8 @@ export var quizData = [
 					"3.141592653589 + [(22 / 7) * 2]"
 				],
 				score: 1000,
-				timeMinutes: 5,
-				timeSeconds: 0,
+				timeMinutes: 0,
+				timeSeconds: 15,
 				correctAns: 0
 			},
 			{
@@ -63,8 +63,8 @@ export var quizData = [
 					"No"
 				],
 				score: 1000,
-				timeMinutes: 2,
-				timeSeconds: 0,
+				timeMinutes: 0,
+				timeSeconds: 15,
 				correctAns: 0
 			}
 		]

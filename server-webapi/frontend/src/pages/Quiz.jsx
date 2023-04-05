@@ -2,7 +2,15 @@
 import React, { useState, useEffect } from "react";
 
 //Library component import(s)
-import { Container, Row, Col, Button, Card, Alert } from "react-bootstrap";
+import {
+	Container,
+	Row,
+	Col,
+	Button,
+	Card,
+	Alert,
+	ListGroup
+} from "react-bootstrap";
 
 //Icon & images import(s)
 import { IoMdArrowBack } from "react-icons/io";
@@ -21,7 +29,7 @@ import { quizData } from "../data/QuizData";
 //Component initialization
 const Quiz = ({ props, uuid }) => {
 	//Debugging
-	const bypassAPI = true;
+	const bypassAPI = false;
 
 	//State variable(s)
 	const [error, setError] = useState(false);
@@ -41,7 +49,7 @@ const Quiz = ({ props, uuid }) => {
 	const [quizSelected, setQuizSelected] = useState(null);
 	const [quizQuestion, setQuizQuestion] = useState(null);
 	const [quizQuestionPos, setQuizQuestionPos] = useState(-1);
-
+	const [quizLastQuestion, setQuizLastQuestion] = useState(0);
 	const [quizResults, setQuizResults] = useState({});
 
 	//Runtime variable(s)
@@ -75,6 +83,37 @@ const Quiz = ({ props, uuid }) => {
 					setTimerCompleted(true);
 
 					clearInterval(interval.current);
+
+					if (!bypassAPI) {
+						fetch(
+							"http://localhost:8080/api/endQuestion?sid=" + uuid
+						)
+							.then(async (response) => {
+								const data = await response.json();
+
+								//Check if response is not status 200
+								if (!response.ok) {
+									const error =
+										(data && data.message) ||
+										response.statusText;
+
+									//Raise error
+									setError(true);
+									setErrorMsg(
+										"API error: '/api/endQuestion'\n" +
+											error
+									);
+
+									return Promise.reject(error);
+								}
+							})
+							.catch((error) => {
+								console.error(
+									"API error: '/api/endQuestion'",
+									error
+								);
+							});
+					}
 				}
 				//Update timer display
 				else {
@@ -96,11 +135,17 @@ const Quiz = ({ props, uuid }) => {
 		const targetQuiz = quizData[targetQuizPos];
 		const targetQuizQuestion = targetQuiz.questions[0];
 
+		setQuizLastQuestion(targetQuiz.questions.length - 1);
+
 		setTimerMinutes(targetQuizQuestion.timeMinutes);
 		setTimerSeconds(targetQuizQuestion.timeSeconds);
 
 		setQuizStarted(true);
 		setQuizQuestioning(true);
+
+		setTimerStarted(false);
+		setTimerRunning(false);
+		setTimerReset(false);
 
 		setQuizSelected(targetQuiz);
 
@@ -191,23 +236,26 @@ const Quiz = ({ props, uuid }) => {
 	const showResultsBtn_onClickHandler = (event) => {
 		setQuizQuestioning(false);
 
-		const postRequest = {
-			method: "POST",
-			headers: { "Content-Type": "application/json" },
-			body: JSON.stringify({
-				sessionid: uuid,
-				quizid: quizSelected.quizid,
-				quizquestion: quizQuestionPos
-			})
-		};
-		fetch("http://localhost:8080/api/questionResults/", postRequest)
+		var link =
+			"http://localhost:8080/api/questionResults?sid=" +
+			uuid +
+			"&minutes=" +
+			quizQuestion.timeMinutes +
+			"&seconds=" +
+			quizQuestion.timeSeconds +
+			"&score=" +
+			quizQuestion.score +
+			"&answer=" +
+			quizQuestion.correctAns;
+		console.log(link);
+
+		fetch(link)
 			.then(async (response) => {
 				const data = await response.json();
 
 				//Check if response is not status 200
 				if (!response.ok) {
-					const error =
-						(data && data.message) || response.statusText;
+					const error = (data && data.message) || response.statusText;
 
 					//Raise error
 					setError(true);
@@ -215,9 +263,23 @@ const Quiz = ({ props, uuid }) => {
 
 					return Promise.reject(error);
 				} else {
-					//Start timer
 					setTimerStarted(true);
-					setTimerRunning(true);
+					setTimerRunning(false);
+					setTimerReset(true);
+
+					console.log(data.content);
+
+					let newQuizResults = quizResults;
+					for (let i = 0; i < data.content.length; i++) {
+						if (data.content[i][0] in quizResults) {
+							newQuizResults[data.content[i][0]] +=
+								data.content[i][1];
+						} else {
+							newQuizResults[data.content[i][0]] =
+								data.content[i][1];
+						}
+					}
+					setQuizResults(newQuizResults);
 				}
 
 				//Unlock button
@@ -234,6 +296,25 @@ const Quiz = ({ props, uuid }) => {
 
 		return;
 	};
+	const nextQuestionBtn_onClickHandler = (event) => {
+		const targetQuizPos = quizQuestionPos + 1;
+		const targetQuizQuestion = quizSelected.questions[targetQuizPos];
+
+		setTimerMinutes(targetQuizQuestion.timeMinutes);
+		setTimerSeconds(targetQuizQuestion.timeSeconds);
+
+		setQuizQuestioning(true);
+
+		setTimerStarted(false);
+		setTimerRunning(false);
+		setTimerReset(false);
+		setTimerCompleted(false);
+
+		setQuizQuestionPos(targetQuizPos);
+		setQuizQuestion(targetQuizQuestion);
+
+		setQuizQuestioning(true);
+	}
 
 	//DOM Snippet(s)
 	const QuizList = () => {
@@ -492,16 +573,40 @@ const Quiz = ({ props, uuid }) => {
 		);
 	};
 	const QuizResult = () => {
-		return <>
-			<Card>
-				<Card.Header>
-					Question {quizQuestionPos + 1} Results
-				</Card.Header>
-				<Card.Body>
-
-				</Card.Body>
-			</Card>
-		</>;
+		return (
+			<>
+				<Card>
+					<Card.Header>
+						Question {quizQuestionPos + 1} Results
+					</Card.Header>
+					<ListGroup>
+						{Object.entries(quizResults).map(([key, value]) => (
+							<ListGroup.Item key={key}>
+								{key}: {value}
+							</ListGroup.Item>
+						))}
+					</ListGroup>
+				</Card>
+				<br />
+				{quizQuestionPos === quizLastQuestion ? (
+					<Button
+						variant="outline-primary"
+						className="btn-block"
+						onClick={rtnQuizListBtn_onClickHandler}
+					>
+						Return to Quiz List
+					</Button>
+				) : (
+					<Button
+						variant="outline-primary"
+						className="btn-block"
+						onClick={nextQuestionBtn_onClickHandler}
+					>
+						Next Question
+					</Button>
+				)}
+			</>
+		);
 	};
 	const ErrorAlert = () => {
 		return (
