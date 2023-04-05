@@ -1,6 +1,7 @@
 #include "M5StickCPlus.h"
 #include <WiFi.h>
 #include <PubSubClient.h>
+#include <time.h>
 
 // WiFi setup
 WiFiClient espClient;
@@ -29,6 +30,7 @@ const char* topic = "m5wifi";
 void setupWifi();
 void callback(char* topic, byte* payload, unsigned int length);
 void connect();
+unsigned long getCurrentTimestamp();
 
 
 void setup() 
@@ -60,6 +62,7 @@ void setup()
   client.setServer(mqtt_server, 1883);
   client.setCallback(callback);  // no need callback for now
   connect();
+  configTime(0, 0, "pool.ntp.org");
 }
 
 void buttonPressCallback() {
@@ -79,11 +82,11 @@ void loop()
           button_pressed = true;
           // questionStarted = false;
 
-        unsigned long currentTime = millis();
+        unsigned long currentTime = getCurrentTimestamp();
         // pressedTime = millis();
         // duration = pressedTime - receivedTime;
         Serial.print("Duration before pressing "+String(currentTime)="\n");  
-        String answer = (String(user)+"#A#"+ String(currentTime)+"ms");
+        String answer = (String(user)+"#A#"+ String(currentTime));
             
           client.publish(topic, answer.c_str(), true);
           M5.Lcd.printf("Button 26", 0);
@@ -97,11 +100,11 @@ void loop()
         button_pressed = true;
         // questionStarted = false;
 
-        unsigned long currentTime = millis();
+        unsigned long currentTime = getCurrentTimestamp();
         // pressedTime = millis();
         // duration = pressedTime - receivedTime;
         Serial.print("Duration before pressing "+String(currentTime)="\n");  
-        String answer = (String(user)+"#C#"+ String(currentTime)+"ms");
+        String answer = (String(user)+"#C#"+ String(currentTime));
         
         client.publish(topic, answer.c_str(), true);
         M5.Lcd.printf("Button 36", 0);
@@ -114,11 +117,11 @@ void loop()
         button_pressed = true;
         // questionStarted = false;
         
-        unsigned long currentTime = millis();
+        unsigned long currentTime = getCurrentTimestamp();
         // pressedTime = millis();
         // duration = pressedTime - receivedTime;
         Serial.print("Duration before pressing "+String(currentTime)="\n");  
-        String answer = (String(user)+"#B#"+ String(currentTime)+"ms");
+        String answer = (String(user)+"#B#"+ String(currentTime));
 
         client.publish(topic, answer.c_str(),true);
         M5.Lcd.printf("Button 0", 0);
@@ -167,6 +170,14 @@ void callback(char* topic, byte* payload, unsigned int length)
   //   questionStarted = true;
   //   receivedTime = millis();
   // }
+}
+
+
+unsigned long getCurrentTimestamp() {
+  struct timeval now;
+  gettimeofday(&now, NULL);
+  unsigned long milliseconds = (now.tv_sec * 1000) + (now.tv_usec / 1000);
+  return milliseconds;
 }
 
 //  connect to mqtt
