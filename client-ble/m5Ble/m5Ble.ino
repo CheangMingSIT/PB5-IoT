@@ -73,25 +73,25 @@ void loop() {
     if (digitalRead(26) == LOW) {
       if (!button_pressed) {
         button_pressed = true;
-        pressBtnCharacteristics->setValue("Btn A is pressed");
+        pressBtnCharacteristics->setValue("0");
         pressBtnCharacteristics->notify();
-        M5.Lcd.print(" Button A");
+        M5.Lcd.print(" Btn A");
         Serial.print("Btn A");
       }
     } else if (digitalRead(36) == LOW) {
       if (!button_pressed) {
         button_pressed = true;
-        pressBtnCharacteristics->setValue("Btn B is pressed");
+        pressBtnCharacteristics->setValue("1");
         pressBtnCharacteristics->notify();
-        M5.Lcd.print(" Button B");
+        M5.Lcd.print(" Btn B");
         Serial.print("Btn B");
       }
     } else if (digitalRead(0) == LOW) {
       if (!button_pressed) {
         button_pressed = true;
-        pressBtnCharacteristics->setValue("Btn C is pressed");
+        pressBtnCharacteristics->setValue("2");
         pressBtnCharacteristics->notify();
-        M5.Lcd.print(" Button C");
+        M5.Lcd.print(" Btn C");
         Serial.print("Btn C");
       }
     }
