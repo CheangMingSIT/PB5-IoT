@@ -33,10 +33,11 @@ def on_message(client, userdata, message):
 		clientId = content.split("#")[0]
 		action = content.split("#")[1]
 
+		#Create database connection
+		dbConn = sqlite3.connect(PATH_DB)
+		dbCursor = dbConn.cursor()
+
 		try:
-			#Create database connection
-			dbConn = sqlite3.connect(PATH_DB)
-			dbCursor = dbConn.cursor()
 			query = """INSERT INTO """ + DB_TABLE + """ 
 				(
 					log_createdby,

@@ -42,6 +42,8 @@ const Quiz = ({ props, uuid }) => {
 	const [quizQuestion, setQuizQuestion] = useState(null);
 	const [quizQuestionPos, setQuizQuestionPos] = useState(-1);
 
+	const [quizResults, setQuizResults] = useState({});
+
 	//Runtime variable(s)
 	const quizOptColor = ["primary", "danger", "success", "warning"];
 	const quizOptClass = "my-2 btn-block";

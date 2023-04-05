@@ -92,10 +92,12 @@ def api_startQuestion():
 		while tryDbConnection:
 			tryDbConnection = False
 
+			#Create database connection
+			dbConn = sqlite3.connect(PATH_DB)
+			dbCursor = dbConn.cursor()
+			
 			try:
-				#Create database connection
-				dbConn = sqlite3.connect(PATH_DB)
-				dbCursor = dbConn.cursor()
+
 				query = """INSERT INTO """ + DB_TABLE + """ 
 					(
 						log_createdby,
