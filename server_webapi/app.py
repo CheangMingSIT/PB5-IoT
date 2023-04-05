@@ -1,6 +1,6 @@
 #Library Import(s)
 from datetime import datetime as dt
-import os, sys, datetime, sqlite3, uuid, math
+import os, sys, datetime, sqlite3, uuid, math, time
 from flask import Flask, request, jsonify, Response, send_from_directory
 from flask_cors import CORS
 
@@ -45,27 +45,39 @@ def api_fetchLogs():
 	
 	returnData = []
 
-	#Create database connection
-	dbConn = sqlite3.connect(PATH_DB)
-	dbCursor = dbConn.cursor()
+	#Try connecting to DB
+	tryDbConnection = True
+	while tryDbConnection:
+		tryDbConnection = False
 
-	try:
-		result = dbCursor.execute("""SELECT * FROM """ + DB_TABLE + """;""").fetchall()
-		for row in result:
-			currentRow = ""
-			for col in row:
-				currentRow += str(col) + " "
-			returnData.append(currentRow)
+		#Create database connection
+		dbConn = sqlite3.connect(PATH_DB)
+		dbCursor = dbConn.cursor()
 
-	except Exception:
-		#Return internal error exception
-		printWithTS("/api/fetchlogs: *ERROR* Unexpected exception in database.")
-		return Response(status = 500)
-	
-	finally:
-		#Close database connections
-		dbCursor.close()
-		dbConn.close()
+		try:
+			result = dbCursor.execute("""SELECT * FROM """ + DB_TABLE + """;""").fetchall()
+			for row in result:
+				currentRow = ""
+				for col in row:
+					currentRow += str(col) + " "
+				returnData.append(currentRow)
+
+		#Caught DB opertional error
+		except sqlite3.OperationalError as e:
+			#Retry DB connection
+			tryDbConnection = True
+			time.sleep(0.01)
+
+		#Caught unexpected error
+		except Exception:
+			#Return internal error exception
+			printWithTS("/api/fetchlogs: *ERROR* Unexpected exception in database.")
+			return Response(status = 500)
+		
+		finally:
+			#Close database connections
+			dbCursor.close()
+			dbConn.close()
 	
 	return jsonify(status = 200, content = returnData)
 @app.route("/api/startQuestion", methods = ["GET"])
@@ -75,46 +87,56 @@ def api_startQuestion():
 		args = request.args
 		inputSid = args.get("sid")
 
-		#Create database connection
-		dbConn = sqlite3.connect(PATH_DB)
-		dbCursor = dbConn.cursor()
+		#Try connecting to DB
+		tryDbConnection = True
+		while tryDbConnection:
+			tryDbConnection = False
 
-		try:
-			query = """INSERT INTO """ + DB_TABLE + """ 
-				(
-					log_createdby,
-					log_timestamp,
-					log_sidBackend,
-					log_sidFrontend,
-					log_type,
-					log_action,
-					log_message
-				) VALUES (
-					'Server',
-					'""" + str(datetime.datetime.now()) + """',
-					'""" + str(RUNTIME_UUID) + """',
-					'""" + str(inputSid) + """',
-					1,
-					0,
-					'0: Starting quiz question...'
-				);"""
+			try:
+				#Create database connection
+				dbConn = sqlite3.connect(PATH_DB)
+				dbCursor = dbConn.cursor()
+				query = """INSERT INTO """ + DB_TABLE + """ 
+					(
+						log_createdby,
+						log_timestamp,
+						log_sidBackend,
+						log_sidFrontend,
+						log_type,
+						log_action,
+						log_message
+					) VALUES (
+						'Server',
+						'""" + str(datetime.datetime.now()) + """',
+						'""" + str(RUNTIME_UUID) + """',
+						'""" + str(inputSid) + """',
+						1,
+						0,
+						'0: Starting quiz question...'
+					);"""
+				
+				dbCursor.execute(query)
+				dbConn.commit()
 			
-			dbCursor.execute(query)
-			dbConn.commit()
-			
-		except Exception as e:
-			#Return internal error exception
-			printWithTS("/api/startQuestion: *ERROR* Unexpected exception in database.")
-			print(str(e))
-			return Response(status = 500)
-		finally:
-			#Close database connections
-			dbCursor.close()
-			dbConn.close()
-		
-		returnData = []
+			#Caught DB opertional error
+			except sqlite3.OperationalError as e:
+				#Retry DB connection
+				tryDbConnection = True
+				time.sleep(0.01)
 
-		return jsonify(status = 200, content = returnData)
+			#Caught unexpected error
+			except Exception as e:
+				#Return internal error exception
+				printWithTS("/api/startQuestion: *ERROR* Unexpected exception in database.")
+				print(str(e))
+				return Response(status = 500)
+			
+			finally:
+				#Close database connections
+				dbCursor.close()
+				dbConn.close()
+			
+			return jsonify(status = 200)
 	else:
 		#Invalid request type
 		return Response(status = 400)
@@ -125,43 +147,57 @@ def api_endQuestion():
 		args = request.args
 		inputSid = args.get("sid")
 
-		#Create database connection
-		dbConn = sqlite3.connect(PATH_DB)
-		dbCursor = dbConn.cursor()
+		#Try connecting to DB
+		tryDbConnection = True
+		while tryDbConnection:
+			tryDbConnection = False
 
-		try:
-			query = """INSERT INTO """ + DB_TABLE + """ 
-				(
-					log_createdby,
-					log_timestamp,
-					log_sidBackend,
-					log_sidFrontend,
-					log_type,
-					log_action,
-					log_message
-				) VALUES (
-					'Server',
-					'""" + str(datetime.datetime.now()) + """',
-					'""" + str(RUNTIME_UUID) + """',
-					'""" + str(inputSid) + """',
-					1,
-					1,
-					'1: Quiz question ended.'
-				);"""
-			
-			dbCursor.execute(query)
-			dbConn.commit()
-			
-		except Exception:
-			#Return internal error exception
-			printWithTS("/api/endQuestion: *ERROR* Unexpected exception in database.")
-			return Response(status = 500)
-		finally:
-			#Close database connections
-			dbCursor.close()
-			dbConn.close()
+			#Create database connection
+			dbConn = sqlite3.connect(PATH_DB)
+			dbCursor = dbConn.cursor()
 
-		return jsonify(status = 200)
+			try:
+				query = """INSERT INTO """ + DB_TABLE + """ 
+					(
+						log_createdby,
+						log_timestamp,
+						log_sidBackend,
+						log_sidFrontend,
+						log_type,
+						log_action,
+						log_message
+					) VALUES (
+						'Server',
+						'""" + str(datetime.datetime.now()) + """',
+						'""" + str(RUNTIME_UUID) + """',
+						'""" + str(inputSid) + """',
+						1,
+						1,
+						'1: Quiz question ended.'
+					);"""
+				
+				dbCursor.execute(query)
+				dbConn.commit()
+			
+			#Caught DB opertional error
+			except sqlite3.OperationalError as e:
+				#Retry DB connection
+				tryDbConnection = True
+				time.sleep(0.01)
+
+			#Caught unexpected error
+			except Exception:
+				#Return internal error exception
+				printWithTS("/api/endQuestion: *ERROR* Unexpected exception in database.")
+				return Response(status = 500)
+			
+			finally:
+				#Close database connections
+				dbCursor.close()
+				dbConn.close()
+
+			return jsonify(status = 200)
+		
 	else:
 		#Invalid request type
 		return Response(status = 400)
