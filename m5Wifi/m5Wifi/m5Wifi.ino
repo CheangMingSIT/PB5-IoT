@@ -11,9 +11,11 @@ const char* password = "serenity";
 //  device global variables
 unsigned long receivedTime = 0;
 unsigned long pressedTime = 0;
+unsigned long duration = 0;
 unsigned long timerDelay = 100;
 bool button_pressed = false;
 bool deviceConnected = false;
+bool questionStarted = false;     // state if question started
 
 // MQTT broker credentials
 const char* mqtt_server = "192.168.83.138";
@@ -70,28 +72,53 @@ void loop()
   M5.update();
   if(client.connected())
   {
+      if (digitalRead(26) == LOW) 
+      {
+        if (!button_pressed && questionStarted) 
+        {
+          button_pressed = true;
+          questionStarted = false;
 
-    // -----------------------
+          pressedTime = millis();
+          duration = pressedTime - receivedTime;
+          Serial.print("Duration before pressing "+String(duration)+"\n");
+          String answer = ("Button 26 pressed User 2 with a duration of "+ String(duration));
+            
+          client.publish(topic, answer.c_str());
+          M5.Lcd.printf("Button 26", 0);
 
-
-      if (digitalRead(26) == LOW) {
-      if (!button_pressed) {
+        }
+    } 
+    else if (digitalRead(36) == LOW) 
+    {
+      if (!button_pressed && questionStarted) 
+      {
         button_pressed = true;
-        //
-        client.publish(topic, "Button 26 pressed User 1");
-        M5.Lcd.printf("Button 26", 0);
+        questionStarted = false;
 
-      }
-    } else if (digitalRead(36) == LOW) {
-      if (!button_pressed) {
-        button_pressed = true;
-        client.publish(topic, "Button 36 pressed User 1");
+        pressedTime = millis();
+        duration = pressedTime - receivedTime;
+        Serial.print("Duration before pressing "+String(duration)+"\n");        
+        String answer = ("Button 36 pressed User 2 with a duration of " + String(duration));
+        
+        client.publish(topic, answer.c_str());
         M5.Lcd.printf("Button 36", 0);
       }
-    } else if (digitalRead(0) == LOW) {
-      if (!button_pressed) {
+    } 
+    else if (digitalRead(0) == LOW) 
+    {
+      if (!button_pressed && questionStarted) 
+      {
         button_pressed = true;
-        client.publish(topic, "Button 0 pressed User 1");
+        questionStarted = false;
+        
+        pressedTime = millis();
+        duration = pressedTime - receivedTime;
+        Serial.print("Duration before pressing "+String(duration)="\n");  
+
+        String answer = ("Button 0 pressed User 2 with a duration of " + String(duration));
+
+        client.publish(topic, answer.c_str());
         M5.Lcd.printf("Button 0", 0);
       }
     }
@@ -124,21 +151,21 @@ void setupWifi()
 //  leave empty for now
 void callback(char* topic, byte* payload, unsigned int length) 
 {
-  // Serial.print("Message received on topic: ");
-  // Serial.println(topic);
-  // String message = "";
-  // for (int i = 0; i < length; i++) {
-  //   message += (char)payload[i];
-  // }
-  // if (strstr(message.c_str(), "Question")) 
-  // {
-    
-  // }
-  // logic for checking against payload
-
-
-  // ts1
-  // handle incoming messages here if necessary
+  // serial logging
+  Serial.print("Message received on topic: ");
+  Serial.println(topic);
+  String message = "";
+  // reading out message
+  for (int i = 0; i < length; i++) {
+    message += (char)payload[i];
+  }
+  if (strstr(message.c_str(), "Question")) 
+  {
+    Serial.println("Question has started");
+    questionStarted = true;
+    receivedTime = millis();
+    // Serial.println(receivedTime);
+  }
 }
 
 //  connect to mqtt
@@ -151,6 +178,7 @@ void connect()
     {
       Serial.println("Connected to MQTT broker");
       client.publish(topic,"M5 stick connected, testing publish");
+      client.subscribe(topic);
     } else {
       Serial.print("Failed with state ");
       Serial.print(client.state());
