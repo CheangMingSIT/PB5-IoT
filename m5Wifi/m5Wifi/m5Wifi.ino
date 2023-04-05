@@ -7,7 +7,7 @@ WiFiClient espClient;
 PubSubClient client(espClient);
 const char* ssid = "Matt-Hotspot";
 const char* password = "serenity";
-const char* user = "User 1";
+const char* user = "User1";
 
 //  device global variables
 unsigned long receivedTime = 0;
@@ -83,7 +83,7 @@ void loop()
           pressedTime = millis();
           duration = pressedTime - receivedTime;
           Serial.print("Duration before pressing "+String(duration)+"\n");
-          String answer = (String(user)+": Button 26 pressed with a duration of "+ String(duration));
+          String answer = (String(user)+"#A#"+ String(duration)+"ms");
             
           client.publish(topic, answer.c_str());
           M5.Lcd.printf("Button 26", 0);
@@ -100,7 +100,7 @@ void loop()
         pressedTime = millis();
         duration = pressedTime - receivedTime;
         Serial.print("Duration before pressing "+String(duration)+"\n");        
-        String answer = (String(user)+": Button 36 pressed User 2 with a duration of " + String(duration));
+        String answer = (String(user)+"#C#"+ String(duration)+"ms");
         
         client.publish(topic, answer.c_str());
         M5.Lcd.printf("Button 36", 0);
@@ -116,8 +116,7 @@ void loop()
         pressedTime = millis();
         duration = pressedTime - receivedTime;
         Serial.print("Duration before pressing "+String(duration)="\n");  
-
-        String answer = (String(user)+": Button 0 pressed User 2 with a duration of " + String(duration));
+        String answer = (String(user)+"#B#"+ String(duration)+"ms");
 
         client.publish(topic, answer.c_str());
         M5.Lcd.printf("Button 0", 0);
