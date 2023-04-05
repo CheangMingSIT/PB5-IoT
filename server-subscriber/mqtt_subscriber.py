@@ -19,13 +19,12 @@ def printWithTS(inputStr):
 
 # Define function to handle incoming messages
 def on_message(client, userdata, message):
-	#latencyToPublisher = client.ping()
-	latencyToPublisher = 10
-
 	recievedTimestamp = datetime.datetime.now()
-	sentTimestamp = recievedTimestamp - datetime.timedelta(microseconds=latencyToPublisher)
 
 	content = str(message.payload.decode("utf-8")).rstrip('\x00')
+
+	latencyToPublisher = int(content.split("#")[2])
+	sentTimestamp = recievedTimestamp - datetime.timedelta(milliseconds=latencyToPublisher)
 
 	printWithTS("Received message: " + str(content))
 
