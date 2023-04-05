@@ -20,11 +20,23 @@ def printWithTS(inputStr):
 # Define function to handle incoming messages
 def on_message(client, userdata, message):
 	recievedTimestamp = datetime.datetime.now()
+	recievedMillisecond = int(round(time.time() * 1000))
 
 	content = str(message.payload.decode("utf-8")).rstrip('\x00')
 
-	latencyToPublisher = int(content.split("#")[2])
-	sentTimestamp = recievedTimestamp - datetime.timedelta(milliseconds=latencyToPublisher)
+	operationType = int(content.split("#")[2])
+
+
+	latencyToPublisher = 0
+	sentTimestamp = None
+
+	if operationType == 1:
+		latencyToPublisher = int(content.split("#")[3])
+		sentTimestamp = recievedTimestamp - datetime.timedelta(milliseconds=latencyToPublisher)
+
+	elif operationType == 2:
+		milliseconds = int(content.split("#")[3])
+		sentTimestamp = datetime.fromtimestamp(milliseconds / 1000.0)
 
 	printWithTS("Received message: " + str(content))
 
