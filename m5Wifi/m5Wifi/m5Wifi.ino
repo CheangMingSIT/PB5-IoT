@@ -10,13 +10,13 @@ const char* password = "serenity";
 const char* user = "User1";
 
 //  device global variables
-unsigned long receivedTime = 0;
-unsigned long pressedTime = 0;
-unsigned long duration = 0;
+// unsigned long receivedTime = 0;
+// unsigned long pressedTime = 0;
+// unsigned long duration = 0;
 unsigned long timerDelay = 100;
 bool button_pressed = false;
 bool deviceConnected = false;
-bool questionStarted = false;     // state if question started
+// bool questionStarted = false;     // state if question started
 
 // MQTT broker credentials
 const char* mqtt_server = "192.168.83.138";
@@ -60,7 +60,6 @@ void setup()
   client.setServer(mqtt_server, 1883);
   client.setCallback(callback);  // no need callback for now
   connect();
-  client.publish(topic, "Testing connection");
 }
 
 void buttonPressCallback() {
@@ -75,50 +74,53 @@ void loop()
   {
       if (digitalRead(26) == LOW) 
       {
-        if (!button_pressed && questionStarted) 
+        if (!button_pressed) 
         {
           button_pressed = true;
-          questionStarted = false;
+          // questionStarted = false;
 
-          pressedTime = millis();
-          duration = pressedTime - receivedTime;
-          Serial.print("Duration before pressing "+String(duration)+"\n");
-          String answer = (String(user)+"#A#"+ String(duration)+"ms");
+        unsigned long currentTime = millis();
+        // pressedTime = millis();
+        // duration = pressedTime - receivedTime;
+        Serial.print("Duration before pressing "+String(currentTime)="\n");  
+        String answer = (String(user)+"#A#"+ String(currentTime)+"ms");
             
-          client.publish(topic, answer.c_str());
+          client.publish(topic, answer.c_str(), true);
           M5.Lcd.printf("Button 26", 0);
 
         }
     } 
     else if (digitalRead(36) == LOW) 
     {
-      if (!button_pressed && questionStarted) 
+      if (!button_pressed) 
       {
         button_pressed = true;
-        questionStarted = false;
+        // questionStarted = false;
 
-        pressedTime = millis();
-        duration = pressedTime - receivedTime;
-        Serial.print("Duration before pressing "+String(duration)+"\n");        
-        String answer = (String(user)+"#C#"+ String(duration)+"ms");
+        unsigned long currentTime = millis();
+        // pressedTime = millis();
+        // duration = pressedTime - receivedTime;
+        Serial.print("Duration before pressing "+String(currentTime)="\n");  
+        String answer = (String(user)+"#C#"+ String(currentTime)+"ms");
         
-        client.publish(topic, answer.c_str());
+        client.publish(topic, answer.c_str(), true);
         M5.Lcd.printf("Button 36", 0);
       }
     } 
     else if (digitalRead(0) == LOW) 
     {
-      if (!button_pressed && questionStarted) 
+      if (!button_pressed) 
       {
         button_pressed = true;
-        questionStarted = false;
+        // questionStarted = false;
         
-        pressedTime = millis();
-        duration = pressedTime - receivedTime;
-        Serial.print("Duration before pressing "+String(duration)="\n");  
-        String answer = (String(user)+"#B#"+ String(duration)+"ms");
+        unsigned long currentTime = millis();
+        // pressedTime = millis();
+        // duration = pressedTime - receivedTime;
+        Serial.print("Duration before pressing "+String(currentTime)="\n");  
+        String answer = (String(user)+"#B#"+ String(currentTime)+"ms");
 
-        client.publish(topic, answer.c_str());
+        client.publish(topic, answer.c_str(),true);
         M5.Lcd.printf("Button 0", 0);
       }
     }
@@ -152,20 +154,19 @@ void setupWifi()
 void callback(char* topic, byte* payload, unsigned int length) 
 {
   // serial logging
-  Serial.print("Message received on topic: ");
-  Serial.println(topic);
-  String message = "";
+  // Serial.print("Message received on topic: ");
+  // Serial.println(topic);
+  // String message = "";
   // reading out message
-  for (int i = 0; i < length; i++) {
-    message += (char)payload[i];
-  }
-  if (strstr(message.c_str(), "Question")) 
-  {
-    Serial.println("Question has started");
-    questionStarted = true;
-    receivedTime = millis();
-    // Serial.println(receivedTime);
-  }
+  // for (int i = 0; i < length; i++) {
+  //   message += (char)payload[i];
+  // }
+  // if (strstr(message.c_str(), "Question")) 
+  // {
+  //   Serial.println("Question has started");
+  //   questionStarted = true;
+  //   receivedTime = millis();
+  // }
 }
 
 //  connect to mqtt
@@ -177,8 +178,8 @@ void connect()
     if (client.connect("")) 
     {
       Serial.println("Connected to MQTT broker");
-      client.publish(topic,"M5 stick connected, testing publish");
-      client.subscribe(topic);
+      client.publish(topic,"M5 stick connected, testing publish",true);
+      client.subscribe(topic,1);
     } else {
       Serial.print("Failed with state ");
       Serial.print(client.state());
