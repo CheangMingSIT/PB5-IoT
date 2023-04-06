@@ -8,7 +8,7 @@ WiFiClient espClient;
 PubSubClient client(espClient);
 const char* ssid = "Matt-Hotspot";
 const char* password = "serenity";
-const char* user = "User1";
+const char* user = "User";
 
 //  device global variables
 // unsigned long receivedTime = 0;
@@ -20,11 +20,11 @@ bool deviceConnected = false;
 // bool questionStarted = false;     // state if question started
 
 // MQTT broker credentials
-const char* mqtt_server = "192.168.83.138";
+const char* mqtt_server = "192.168.83.187";
 const int mqtt_port = 1883;
 
 // MQTT topic to publish and subscribe to
-const char* topic = "m5wifi";
+const char* topic = "test";
 
 //  function headers
 void setupWifi();
@@ -86,7 +86,7 @@ void loop()
         // pressedTime = millis();
         // duration = pressedTime - receivedTime;
         Serial.print("Duration before pressing "+String(currentTime)="\n");  
-        String answer = (String(user)+"#A#"+ String(currentTime));
+        String answer = (String(user)+"#0#"+ String(currentTime));
             
           client.publish(topic, answer.c_str(), true);
           M5.Lcd.printf("Button 26", 0);
@@ -104,7 +104,7 @@ void loop()
         // pressedTime = millis();
         // duration = pressedTime - receivedTime;
         Serial.print("Duration before pressing "+String(currentTime)="\n");  
-        String answer = (String(user)+"#C#"+ String(currentTime));
+        String answer = (String(user)+"#1#"+ String(currentTime));
         
         client.publish(topic, answer.c_str(), true);
         M5.Lcd.printf("Button 36", 0);
@@ -121,7 +121,7 @@ void loop()
         // pressedTime = millis();
         // duration = pressedTime - receivedTime;
         Serial.print("Duration before pressing "+String(currentTime)="\n");  
-        String answer = (String(user)+"#B#"+ String(currentTime));
+        String answer = (String(user)+"#2#"+ String(currentTime));
 
         client.publish(topic, answer.c_str(),true);
         M5.Lcd.printf("Button 0", 0);
@@ -186,7 +186,7 @@ void connect()
   while(!client.connected())
   {
     Serial.println("Connecting to MQTT broker...\n");
-    if (client.connect("")) 
+    if (client.connect("Client101")) 
     {
       Serial.println("Connected to MQTT broker");
       client.publish(topic,"M5 stick connected, testing publish",true);

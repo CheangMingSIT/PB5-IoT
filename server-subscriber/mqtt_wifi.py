@@ -3,12 +3,12 @@ import os, sys, datetime, sqlite3, uuid, math, time
 from datetime import datetime as dt
 
 #Config Variable(s)
-PATH_DB = "../database/logs.sqlite"
+PATH_DB = "./database/logs.sqlite"
 DB_TABLE = "Logs"
 DB_DATETIMEFORMAT = "%Y-%m-%d %H:%M:%S.%f"
 
 # Define MQTT broker details
-broker_address = "192.168.182.184"
+broker_address = "192.168.83.187"
 port = 1883
 topic = "test"
 
@@ -29,15 +29,18 @@ def on_message(client, userdata, message):
 	latencyToPublisher = 0
 	sentTimestamp = None
 
-	if operationType == 1:
+	if operationType == "1":
 		latencyToPublisher = int(content.split("#")[3])
 		sentTimestamp = recievedTimestamp - datetime.timedelta(milliseconds=latencyToPublisher)
+	else:
+		sentTimestamp = recievedTimestamp
+		printWithTS("Received message: " + str(content))
 
-	elif operationType == 2:
-		milliseconds = int(content.split("#")[3])
-		sentTimestamp = datetime.fromtimestamp(milliseconds / 1000.0)
+	# elif operationType == 2:
+	# 	milliseconds = int(content.split("#")[3])
+	# 	sentTimestamp = datetime.datetime.fromtimestamp(milliseconds / 1000.0)
 
-	printWithTS("Received message: " + str(content))
+
 
 	#Try connecting to DB
 	tryDbConnection = True
