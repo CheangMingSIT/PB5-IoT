@@ -8,7 +8,7 @@ WiFiClient espClient;
 PubSubClient client(espClient);
 const char* ssid = "Matt-Hotspot";
 const char* password = "serenity";
-const char* user = "User";
+const char* user = "User2";
 
 //  device global variables
 // unsigned long receivedTime = 0;
@@ -186,7 +186,7 @@ void connect()
   while(!client.connected())
   {
     Serial.println("Connecting to MQTT broker...\n");
-    if (client.connect("Client101")) 
+    if (client.connect("")) 
     {
       Serial.println("Connected to MQTT broker");
       client.publish(topic,"M5 stick connected, testing publish",true);
